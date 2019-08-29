@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: batch-config
+data:
+  batch.properties: |
+    db.url=jdbc:postgresql://postgres.default.svc.cluster.local:5432/postgres
+    db.user=postgres
+    db.pass=password
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: batch-server
+  labels:
+    app: batch-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: batch-server
+  template:
+    metadata:
+      labels:
+        app: batch-server
+    spec:
+      containers:
+      # Legacy Batch Server
+      - name: batch-server
+        image: satoshi55d/regacy-app:1.0.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 1099
+        command: ["/start-batch-server.sh"]
+        volumeMounts:
+        - name: config-volume
+          mountPath: /opt/apache-tomcat-6.0.53/webapps/legacy-app/WEB-INF/batch/batch.properties
+          subPath: batch.properties
+      volumes:
+        - name: config-volume
+          configMap:
+            name: batch-config
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: batch-server
+spec:
+  selector:
+    app: batch-server
+  ports:
+    - protocol: TCP
+      port: 1099
+      targetPort: 1099
