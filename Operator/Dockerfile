@@ -7,9 +7,9 @@ RUN mv ./kubectl /usr/local/bin/kubectl
 #RUN kubectl version
 
 # Deployment のコピー
-COPY ./batch-server-deployment.yaml /tmp
-#COPY ./batch-timer-deployment.yaml /tmp
-#COPY ./web-deployment.yaml /tmp
+COPY batch-server-deployment.yaml /tmp
+COPY batch-timer-deployment.yaml /tmp
+COPY web-deployment.yaml /tmp
 
 # Shell のコピー
 COPY ./boot_legacyapp.sh /tmp
