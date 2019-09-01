@@ -6,6 +6,9 @@ RUN chmod +x ./kubectl
 RUN mv ./kubectl /usr/local/bin/kubectl
 #RUN kubectl version
 
+# CRD のコピー
+COPY legacyapp-crd.yaml /tmp
+
 # Deployment のコピー
 COPY batch-server-deployment.yaml /tmp
 COPY batch-timer-deployment.yaml /tmp

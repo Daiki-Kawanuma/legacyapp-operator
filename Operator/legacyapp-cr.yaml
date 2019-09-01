@@ -1,0 +1,10 @@
+apiVersion: "hirarinslab.com/v1"
+kind: LegacyApp
+metadata:
+  name: enterprise-a
+spec:
+  db-hostname: postgres.default.svc.cluster.local
+  db-port: 5432
+  db-scheme: postgres
+  db-user: postgres
+  db-password: password
