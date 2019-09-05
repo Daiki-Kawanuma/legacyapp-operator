@@ -48,12 +48,22 @@ spec:
           mountPath: /opt/apache-tomcat-6.0.53/conf/context.xml
           subPath: context.xml
         imagePullPolicy: Always
+      # WebのRMI通信をProxyしてBatchServerへ転送するアンバサダーコンテナを差し込み。
       - name: tcp-proxy
         image: satoshi55d/haproxy:1.0.0
         env:
         - name: BATCH_SERVER_ADDRESS
           value: "batch-server.default.svc.cluster.local"
         imagePullPolicy: Always
+      # スケール時に顧客設定データを初期化（削除）。Webコンポーネント起動時に初期データを再投入。
+      initContainers:
+      - name: init-data
+        image: satoshi55d/postgres:1.0.0
+        command: ['sh', '-c', 'initialize-data.sh']
+        volumeMounts:
+        - name: config-volume
+          mountPath: /context.xml
+          subPath: context.xml
       volumes:
         - name: config-volume
           configMap:

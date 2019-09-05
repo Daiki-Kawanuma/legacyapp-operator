@@ -20,13 +20,16 @@ spec:
         image: satoshi55d/regacy-app:1.0.0
         imagePullPolicy: Always
         command: ["/start-batch-timer.sh"]
-#        command: ["/bin/bash","-c","while true; do sleep 1000; done"]
+      # BatchTimerのRMI通信をProxyしてBatchServerへ転送するアンバサダーコンテナを差し込み。  
       - name: tcp-proxy
         image: satoshi55d/haproxy:1.0.0
         imagePullPolicy: Always
         env:
         - name: BATCH_SERVER_ADDRESS
           value: "batch-server.default.svc.cluster.local"
-#        command: ["/bin/bash","-c","while true; do sleep 1000; done"]
+      # バッチ処理リカバリ用コンテナを差し込み
+      - name: batch-recovery
+        image: satoshi55d/batch-recovery:1.0.0
+        imagePullPolicy: Always
 
       restartPolicy: Always
