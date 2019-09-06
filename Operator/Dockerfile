@@ -4,7 +4,9 @@ FROM centos:7
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/linux/amd64/kubectl
 RUN chmod +x ./kubectl
 RUN mv ./kubectl /usr/local/bin/kubectl
-#RUN kubectl version
+
+# psql のインストール
+RUN yum install -y postgresql
 
 # CRD のコピー
 COPY legacyapp-crd.yaml /tmp
@@ -15,8 +17,14 @@ COPY batch-timer-deployment.yaml /tmp
 COPY web-deployment.yaml /tmp
 
 # Shell のコピー
-COPY ./boot_legacyapp.sh /tmp
-RUN chmod 755 /tmp/boot_legacyapp.sh
+COPY ./startup.sh /tmp
+RUN chmod 755 /tmp/startup.sh
+COPY ./deploy_legacyapp.sh /tmp
+RUN chmod 755 /tmp/deploy_legacyapp.sh
+COPY ./release_passwordlock.sh /tmp
+RUN chmod 755 /tmp/release_passwordlock.sh
+COPY ./release_passwordlock.sql /tmp
+RUN chmod 755 /tmp/release_passwordlock.sql
 
 # 実行
-CMD /tmp/boot_legacyapp.sh
+CMD /tmp/startup.sh
