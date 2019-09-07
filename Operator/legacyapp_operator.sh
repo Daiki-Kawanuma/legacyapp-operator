@@ -63,7 +63,10 @@ delete_service() {
   local name=$1
   local deletionTimestamp=$2
 
-  if [ -n $deletionTimestamp]; then
+  echo "name:[${name}]"
+  echo "deletionTimestamp:[${deletionTimestamp}]"
+
+  if [[ -n ${deletionTimestamp} ]]; then
     kubectl delete deployment,service web
     kubectl delete deployment batch-timer
     kubectl delete deployment,service batch-server
@@ -92,7 +95,7 @@ while true; do
 
   for i in $(kubectl get legacyapp -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.end}'); do
     delete_service $(kubectl get legacyapp $i \
-      -o jsonpath='{.metadata.name}{"\t"}{.metadata.deletionTimestamp}{"\t"}');
+      -o jsonpath='{.metadata.name}{"\t"}{.metadata.deletionTimestamp}');
   done
 
   sleep 5;
