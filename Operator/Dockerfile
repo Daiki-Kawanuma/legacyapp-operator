@@ -17,14 +17,8 @@ COPY batch-timer-deployment.yaml /tmp
 COPY web-deployment.yaml /tmp
 
 # Shell のコピー
-COPY ./startup.sh /tmp
-RUN chmod 755 /tmp/startup.sh
-COPY ./deploy_legacyapp.sh /tmp
-RUN chmod 755 /tmp/deploy_legacyapp.sh
-COPY ./release_passwordlock.sh /tmp
-RUN chmod 755 /tmp/release_passwordlock.sh
-COPY ./release_passwordlock.sql /tmp
-RUN chmod 755 /tmp/release_passwordlock.sql
+COPY ./legacyapp_operator.sh /tmp
+RUN chmod 755 /tmp/legacyapp_operator.sh
 
 # 実行
-CMD /tmp/startup.sh
+CMD /tmp/legacyapp_operator.sh
