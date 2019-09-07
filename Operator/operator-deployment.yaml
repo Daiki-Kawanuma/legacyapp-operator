@@ -12,9 +12,10 @@ spec:
       labels:
         app: operator
     spec:
+      serviceAccountName: legacyapp-sa
       containers:
         - name: operator-container
-          image: foobar3173/operator:0.1
+          image: satoshi55d/operator:0.1
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
