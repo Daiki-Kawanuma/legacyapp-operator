@@ -44,7 +44,7 @@ delete_service() {
 	local name=$1
 	local deletionTimestamp=$2
 
-  if [-n deletionTimestamp]; then
+  if [-n $deletionTimestamp]; then
       kubectl delete deployment,service web
       kubectl delete deployment batch-timer
       kubectl delete deployment,service batch-server
