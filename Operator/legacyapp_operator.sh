@@ -1,11 +1,12 @@
 #!/bin/bash
 
 check_crd() {	
-	kubectl get crd legacyapp.hirarinslab.com > /dev/null 2>&1
+  kubectl get crd legacyapp.hirarinslab.com > /dev/null 2>&1
 }
 
 create_crd() {	
-	kubectl apply -f /tmp/legacyapp-crd.yaml
+  echo "create_crd";
+  kubectl apply -f /tmp/legacyapp-crd.yaml
 }
 
 inject_finalizer(){
@@ -14,6 +15,8 @@ inject_finalizer(){
 }
 
 ensure_service() {
+  echo "ensure_service"
+
   local name=$1
   local db_hostname=$2
   local db_port=$3
@@ -28,19 +31,21 @@ ensure_service() {
   sed s%postgresql://postgres.default.svc.cluster.local:5432/postgres%postgresql://$db_hostname:$db_port/$db_dbname%g /tmp/batch-server-deployment.yaml \
     | sed s%db.user=postgres%db.user=$db_user%g \
     | sed s%db.pass=password%db.pass=$db_password%g \
-    | kubectl apply -f -
+    | kubectl apply -f - > /dev/null
 
   # バッチタイマー起動
-  kubectl apply -f /tmp/batch-timer-deployment.yaml
+  kubectl apply -f /tmp/batch-timer-deployment.yaml > /dev/null
 
   # Web起動
   sed s%username=\"postgres\"%username=\"$db_user\"%g /tmp/web-deployment.yaml \
     | sed s%password=\"password\"%password=\"$db_password\"%g \
     | sed s%url=\"jdbc:postgresql://postgres.default.svc.cluster.local:5432/postgres\"%url=\"jdbc:postgresql://$db_hostname:$db_port/$db_dbname\"%g \
-    | kubectl apply -f -
+    | kubectl apply -f - > /dev/null
 }
 
-release_passwordlock() {	
+release_passwordlock() {
+  echo "release_passwordlock"
+
   local db_hostname=$1
   local db_port=$2
   local db_dbname=$3
@@ -53,22 +58,23 @@ release_passwordlock() {
 }
 
 delete_service() {
+  echo "delete_service"
+
   local name=$1
   local deletionTimestamp=$2
 
-  if [-n $deletionTimestamp]; then
-      kubectl delete deployment,service web
-      kubectl delete deployment batch-timer
-      kubectl delete deployment,service batch-server
-      kubectl patch legacyapp $name --type merge -p '{"metadata":{"finalizers": [null]}}'
+  if [ -n $deletionTimestamp]; then
+    kubectl delete deployment,service web
+    kubectl delete deployment batch-timer
+    kubectl delete deployment,service batch-server
+    kubectl patch legacyapp $name --type merge -p '{"metadata":{"finalizers": [null]}}'
   fi
 }
 
-echo "deploy_legacyapp.sh"
+echo "Begin legacyapp_operator.sh"
 
 while true; do  
-  if ! check_crd; then
-    echo "Create CRD: LegacyApp";
+  if ! check_crd; then    
     create_crd;
     sleep 1;
     continue

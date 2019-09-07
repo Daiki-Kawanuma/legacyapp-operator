@@ -19,6 +19,8 @@ COPY web-deployment.yaml /tmp
 # Shell のコピー
 COPY ./legacyapp_operator.sh /tmp
 RUN chmod 755 /tmp/legacyapp_operator.sh
+COPY ./release_passwordlock.sql /tmp
+RUN chmod 755 /tmp/release_passwordlock.sql
 
 # 実行
 CMD /tmp/legacyapp_operator.sh
