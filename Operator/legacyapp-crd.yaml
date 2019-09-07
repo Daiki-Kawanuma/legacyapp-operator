@@ -20,3 +20,33 @@ spec:
     # shortNames allow shorter string to match your resource on the CLI
     shortNames:
     - la
+  additionalPrinterColumns:
+    - name: DB Host
+      type: string
+      description: Database Hostname
+      JSONPath: .spec.db-hostname
+    - name: DB Port
+      type: integer
+      description: Databse Port
+      JSONPath: .spec.db-port
+    - name: DB Scheme
+      type: string
+      description: Database Scheme
+      JSONPath: .spec.db-scheme
+  validation:
+    openAPIV3Schema:
+      required: ["spec"]
+      properties:
+        spec:
+          required: ["db-hostname","db-port","db-scheme","db-user","db-password"]
+          properties:
+            db-hostname:
+              type: string              
+            db-port:
+              type: integer
+            db-dbname:
+              type: string
+            db-user:
+              type: string
+            db-password:
+              type: string
