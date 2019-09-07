@@ -8,6 +8,11 @@ create_crd() {
 	kubectl apply -f /tmp/legacyapp-crd.yaml
 }
 
+inject_finalizer(){
+  local name=$1
+  kubectl patch legacyapp $name --type merge -p '{"metadata":{"finalizers": ["finalizer.legacyapp.hirarinslab.com"]}}'
+}
+
 ensure_service() {
 	local name=$1
 	local db_hostname=$2
@@ -15,6 +20,9 @@ ensure_service() {
 	local db_dbname=$4
 	local db_user=$5
   local db_password=$6
+
+  # finalizer設定
+  inject_finalizer $1
 
   # バッチサーバ起動
   sed s%postgresql://postgres.default.svc.cluster.local:5432/postgres%postgresql://$db_hostname:$db_port/$db_dbname%g /tmp/batch-server-deployment.yaml \
@@ -32,6 +40,18 @@ ensure_service() {
     | kubectl apply -f -
 }
 
+delete_service() {
+	local name=$1
+	local deletionTimestamp=$2
+
+  if [-n deletionTimestamp]; then
+      kubectl delete deployment,service web
+      kubectl delete deployment batch-timer
+      kubectl delete deployment,service batch-server
+      kubectl patch legacyapp $name --type merge -p '{"metadata":{"finalizers": [null]}}'
+  fi
+}
+
 echo "deploy_legacyapp.sh"
 
 while true; do  
@@ -45,6 +65,11 @@ while true; do
   for i in $(kubectl get legacyapp -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.end}'); do
     ensure_service $(kubectl get legacyapp $i \
       -o jsonpath='{.metadata.name}{"\t"}{.spec.db-hostname}{"\t"}{.spec.db-port}{"\t"}{.spec.db_dbname}{"\t"}{.spec.db-user}{"\t"}{.spec.db-password}{"\t"}');
+  done
+
+  for i in $(kubectl get legacyapp -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.end}'); do
+    delete_service $(kubectl get legacyapp $i \
+      -o jsonpath='{.metadata.name}{"\t"}{.metadata.deletionTimestamp}{"\t"}');
   done
 
   sleep 5;
