@@ -59,7 +59,7 @@ spec:
       initContainers:
       - name: init-data
         image: satoshi55d/postgres:1.0.0
-        command: ['sh', '-c', 'initialize-data.sh']
+        command: ['sh', '-c', '/initialize-data.sh']
         volumeMounts:
         - name: config-volume
           mountPath: /context.xml
