@@ -70,6 +70,8 @@ delete_service() {
     kubectl delete deployment,service web
     kubectl delete deployment batch-timer
     kubectl delete deployment,service batch-server
+    kubectl delete cm batch-config
+    kubectl delete cm tomcat-config
     kubectl patch legacyapp $name --type merge -p '{"metadata":{"finalizers": [null]}}'
   fi
 }
