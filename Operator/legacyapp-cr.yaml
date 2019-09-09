@@ -5,6 +5,6 @@ metadata:
 spec:
   db-hostname: postgres.default.svc.cluster.local
   db-port: 5432
-  db-dbname: postgres
+  db-scheme: postgres
   db-user: postgres
   db-password: password
